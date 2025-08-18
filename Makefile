@@ -67,20 +67,20 @@ build: lib
 
 LIB_DIRS := $(wildcard $(addprefix lib/,$(TARGETS)))
 
-# Wrap recursive make + fallback echo in an explicit bash -lc to avoid dash quirks.
+# Wrap recursive make + fallback echo in bash safely
 $(LIB_DIRS): $(IRQ_DEFN_FILES:=.genhdr)
 	$(Q)$(RM) ".stamp_failure_$(subst /,_,$@)"
 	@printf "  BUILD   $@\n"
-	$(Q)bash -lc '$(MAKE) --directory="$@" SRCLIBDIR="$(SRCLIBDIR)" || \
-		echo "Failure building: $@: code: $$?" > ".stamp_failure_$(subst /,_,$@)"'
+	$(Q)bash -lc "$(MAKE) --directory=\"\$@\" SRCLIBDIR=\"$(SRCLIBDIR)\" || \
+		echo \"Failure building: \$@: code: \$?\" > \".stamp_failure_$(subst /,_,$@)\""
 
 lib: $(LIB_DIRS)
 	$(Q)$(RM) .stamp_failure_tld
 	# Collect any per-target failure stamps in one place
-	$(Q)bash -lc 'for failure in .stamp_failure_*; do \
-		[ -f "$$failure" ] && cat "$$failure" >> .stamp_failure_tld || true; \
+	$(Q)bash -lc "for failure in .stamp_failure_*; do \
+		[ -f \"\$failure\" ] && cat \"\$failure\" >> .stamp_failure_tld || true; \
 	done; \
-	[ -f .stamp_failure_tld ] && cat .stamp_failure_tld && exit 1 || true'
+	[ -f .stamp_failure_tld ] && cat .stamp_failure_tld && exit 1 || true"
 
 html doc:
 	$(Q)$(MAKE) -C doc html
@@ -126,5 +126,3 @@ genlinktests.clean:
 	fi
 
 .PHONY: build lib $(LIB_DIRS) doc clean generatedheaders cleanheaders stylecheck genlinktests genlinktests.clean
-
-
