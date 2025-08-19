@@ -68,8 +68,7 @@ LIB_DIRS := $(wildcard $(addprefix lib/,$(TARGETS)))
 $(LIB_DIRS): $(IRQ_DEFN_FILES:=.genhdr)
 	$(Q)$(RM) ".stamp_failure_$(subst /,_,$@)"
 	@printf "  BUILD   $@\n"
-	@$(MAKE) --directory="$@" SRCLIBDIR="$(SRCLIBDIR)" || \
-	  echo "Failure building: $@: code: $$?" > ".stamp_failure_$(subst /,_,$@)"
+	@bash -lc 'make --directory="$@" SRCLIBDIR="$(SRCLIBDIR)" || echo "Failure building: $@: code: $$?" > ".stamp_failure_$(subst /,_,$@)"'
 
 lib: $(LIB_DIRS)
 	$(Q)$(RM) .stamp_failure_tld
@@ -119,5 +118,7 @@ genlinktests.clean:
 	else \
 		printf "  TEST FAIL : $*\n"; \
 	fi
+
+.PHONY: build lib $(LIB_DIRS) doc clean generatedheaders cleanheaders stylecheck genlinktests genlinktests.clean
 
 .PHONY: build lib $(LIB_DIRS) doc clean generatedheaders cleanheaders stylecheck genlinktests genlinktests.clean
