@@ -64,7 +64,7 @@ build: lib
 
 LIB_DIRS := $(wildcard $(addprefix lib/,$(TARGETS)))
 
-# Corrected recursive make to avoid unterminated quotes
+# Fixed recursive make to avoid unterminated quoted string
 $(LIB_DIRS): $(IRQ_DEFN_FILES:=.genhdr)
 	$(Q)$(RM) ".stamp_failure_$(subst /,_,$@)"
 	@printf "  BUILD   $@\n"
